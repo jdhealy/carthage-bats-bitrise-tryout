@@ -1,0 +1,28 @@
+---
+format_version: 1.3.1
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+trigger_map:
+- push_branch: "*"
+  workflow: primary
+- pull_request_source_branch: "*"
+  workflow: primary
+workflows:
+  primary:
+    steps:
+    - git-clone@3.4.1: {}
+    - script@1.1.3:
+        title: Integration Tests with bats for carthage
+        inputs:
+        - content: |-
+            #!/bin/zsh
+            brew update
+            brew uninstall carthage || true
+            brew install bats
+            brew install --HEAD carthage.rb
+            cd ~/Library/Caches/Homebrew/carthage--git
+            CI='true' bats Source/CarthageIntegration/
+app:
+  envs:
+  - opts:
+      is_expand: false
+    CI: "true"
